@@ -16,6 +16,7 @@ export default class Level1 extends Component {
         randomTense: "",
         wrongAnswer: "",
         wrongAnswers: [],
+        score: 0,
     };
     handleKeyPress = (event) => {
         if (event.key === "Enter") {
@@ -55,14 +56,19 @@ export default class Level1 extends Component {
         this.setState({ randomTense: randomTenseValue });
     };
     checkMatched = () => {
-        const { randomTense, round, value, wrongAnswers } = this.state;
+        const { randomTense, round, value, wrongAnswers, score } = this.state;
         if (
             (randomTense === "simple"
                 ? level1[round].simple
                 : level1[round].past) === value
         ) {
             this.setState(
-                { round: round + 1, timer: 10, wrongAnswer: "" },
+                {
+                    round: round + 1,
+                    timer: 10,
+                    wrongAnswer: "",
+                    score: score + 1,
+                },
                 () => {
                     this.randomTenseFunction();
                     clearTimeout(this.timeOut);
@@ -123,6 +129,7 @@ export default class Level1 extends Component {
             randomTense,
             wrongAnswer,
             wrongAnswers,
+            score,
         } = this.state;
         return (
             <div
@@ -134,7 +141,7 @@ export default class Level1 extends Component {
                     margin: "3rem auto",
                 }}
             >
-                {!wrongAnswer && !timeOut ? (
+                {!wrongAnswer && !timeOut && round < level1.length ? (
                     <>
                         <div
                             style={{
@@ -256,29 +263,47 @@ export default class Level1 extends Component {
                     </>
                 ) : (
                     <>
-                        <h1 style={{ textAlign: "center" }}>GAME OVER</h1>
-                        <h3>Score: {round - 1}</h3>
-                        <h3>List wrong answer: </h3>
-                        {wrongAnswers.map((answer, index) => {
-                            return (
-                                <div key={index}>
-                                    <ul>
-                                        <li>{answer}</li>
-                                    </ul>
+                        {score >= level1.length ? (
+                            <>
+                                <h1 style={{ textAlign: "center" }}>
+                                    CONGRATULATION!!
+                                </h1>
+                                <h2 style={{ textAlign: "center" }}>
+                                    {" "}
+                                    YOU PASSED LEVEL{" "}
+                                </h2>
+                            </>
+                        ) : (
+                            <>
+                                <h1 style={{ textAlign: "center" }}>
+                                    GAME OVER
+                                </h1>
+                                <h3>Score: {score}</h3>
+                                <h3>List wrong answer: </h3>
+                                {wrongAnswers.map((answer, index) => {
+                                    return (
+                                        <div key={index}>
+                                            <ul>
+                                                <li>{answer}</li>
+                                            </ul>
+                                        </div>
+                                    );
+                                })}
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-evenly",
+                                    }}
+                                >
+                                    <Button onClick={this.handleRedirect}>
+                                        Retry
+                                    </Button>
+                                    {/* <Button>
+                                        <Link to="/test2">Level2</Link>
+                                    </Button> */}
                                 </div>
-                            );
-                        })}
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-evenly",
-                            }}
-                        >
-                            <Button onClick={this.handleRedirect}>Retry</Button>
-                            <Button>
-                                <Link to="/test2">Level2</Link>
-                            </Button>
-                        </div>
+                            </>
+                        )}
                     </>
                 )}
             </div>
