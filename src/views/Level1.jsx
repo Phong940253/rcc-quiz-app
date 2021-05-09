@@ -17,6 +17,11 @@ export default class Level1 extends Component {
         wrongAnswer: "",
         wrongAnswers: [],
     };
+    handleKeyPress = (event) => {
+        if (event.key === "Enter") {
+            this.handleSubmit(event);
+        }
+    };
     handleClick = () => {};
     handleRestart = () => {
         this.setState({ timer: 10, timeOut: false, wrongAnswer: "" });
@@ -32,6 +37,7 @@ export default class Level1 extends Component {
     }
     startTimeOut = () => {
         this.timeOut = setTimeout(() => {
+            this.handleSubmitWhenTimeOut();
             this.setState({ timeOut: true });
         }, 10000);
         clearInterval(this.interval);
@@ -61,6 +67,7 @@ export default class Level1 extends Component {
                     this.randomTenseFunction();
                     clearTimeout(this.timeOut);
                     this.timeOut = setTimeout(() => {
+                        this.handleSubmitWhenTimeOut();
                         this.setState({ timeOut: true });
                     }, 10000);
                 }
@@ -81,9 +88,6 @@ export default class Level1 extends Component {
                     });
                     this.randomTenseFunction();
                     clearTimeout(this.timeOut);
-                    this.timeOut = setTimeout(() => {
-                        this.setState({ timeOut: true });
-                    }, 10000);
                 }
             );
         }
@@ -103,6 +107,13 @@ export default class Level1 extends Component {
         this.setState({ value: "", wrongAnswer: "" });
         this.checkMatched();
     };
+
+    handleSubmitWhenTimeOut = () => {
+        const { round } = this.state;
+        this.setState({ value: "", wrongAnswer: "" });
+        this.setState({ round: round + 1, timer: 10, wrongAnswer: "" });
+    };
+
     render() {
         const {
             value,
@@ -123,7 +134,7 @@ export default class Level1 extends Component {
                     margin: "3rem auto",
                 }}
             >
-                {round < level1.length ? (
+                {!wrongAnswer && !timeOut ? (
                     <>
                         <div
                             style={{
@@ -171,6 +182,7 @@ export default class Level1 extends Component {
                                     type="text"
                                     value={value}
                                     onChange={this.handleChange}
+                                    onKeyPress={this.handleKeyPress}
                                 />
                                 <Button
                                     type="submit"
@@ -187,7 +199,7 @@ export default class Level1 extends Component {
                                     justifyContent: "space-between",
                                 }}
                             >
-                                <Button
+                                {/* <Button
                                     className={`${timer <= 8} && 'disabled'`}
                                     maxWidth="20%"
                                 >
@@ -220,9 +232,9 @@ export default class Level1 extends Component {
                                     }}
                                 >
                                     Click to Restart!
-                                </Button>
+                                </Button> */}
                             </div>
-                            {wrongAnswer && (
+                            {wrongAnswer ? (
                                 <>
                                     <Divider />
                                     <h3> Wrong ! Correct Answer: </h3>
@@ -232,12 +244,21 @@ export default class Level1 extends Component {
                                         </li>
                                     </div>
                                 </>
+                            ) : (
+                                round > 0 && (
+                                    <>
+                                        <Divider />
+                                        <h3>Correct!</h3>
+                                    </>
+                                )
                             )}
                         </form>
                     </>
                 ) : (
                     <>
-                        <h1> Reviews the wrong answers</h1>
+                        <h1 style={{ textAlign: "center" }}>GAME OVER</h1>
+                        <h3>Score: {round - 1}</h3>
+                        <h3>List wrong answer: </h3>
                         {wrongAnswers.map((answer, index) => {
                             return (
                                 <div key={index}>
